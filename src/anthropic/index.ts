@@ -1,16 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { RawMessageStreamEvent } from "@anthropic-ai/sdk/resources/messages.mjs"
-import {
-  ModelApi,
-  PromptFinalResponse,
-  PromptResult,
-  Model
-} from "@mfb/llm-types"
+import { ChatPrompt, ModelApi } from "../types/index.js"
 
-type AnthropicModel = Extract<
-  Model,
-  "claude-3-5-sonnet-20241022" | "claude-3-5-haiku-20241022"
->
+type AnthropicModel = "claude-3-5-sonnet-20241022" | "claude-3-5-haiku-20241022"
 
 export function buildAnthrophicLlm(
   model: AnthropicModel,
@@ -20,20 +12,45 @@ export function buildAnthrophicLlm(
     apiKey: anthrophicApiKey
   })
 
-  return {
-    textPrompt: async (prompt: string, instructions?: string) => {
-      const stream = client.messages.stream({
-        max_tokens: 8192,
-        model: model,
-        system: instructions ? `${instructions}` : "",
-        messages: [
+  const toAnthropicPrompt = (
+    prompt: string | ChatPrompt
+  ): { role: "user" | "assistant"; content: string }[] =>
+    typeof prompt === "string"
+      ? [
           {
             role: "user",
             content: prompt
           }
         ]
+      : prompt.map(p => ({
+          role: p.role,
+          content: p.prompt
+        }))
+
+  return {
+    getText: async (prompt: string | ChatPrompt, instructions?: string) => {
+      const result = await client.messages.create({
+        max_tokens: 8192,
+        model: model,
+        system: instructions ? `${instructions}` : "",
+        messages: toAnthropicPrompt(prompt)
       })
-      const result: PromptResult = {
+      const response = {
+        uuid: result.id,
+        text: result.content.map(c => (c.type === "text" ? c.text : "")).join(),
+        inputTokens: result.usage.input_tokens,
+        outputTokens: result.usage.output_tokens
+      }
+      return response
+    },
+    getStream: async (prompt: string | ChatPrompt, instructions?: string) => {
+      const stream = client.messages.stream({
+        max_tokens: 8192,
+        model: model,
+        system: instructions ? `${instructions}` : "",
+        messages: toAnthropicPrompt(prompt)
+      })
+      const result = {
         stream: mapIterable(stream, (s: RawMessageStreamEvent) => {
           if (
             s.type === "content_block_delta" &&
@@ -46,7 +63,7 @@ export function buildAnthrophicLlm(
         }),
         getFinalResponse: async () => {
           const claudeFinal = await stream.finalMessage()
-          const response: PromptFinalResponse = {
+          const response = {
             uuid: claudeFinal.id,
             text: claudeFinal.content
               .map(c => (c.type === "text" ? c.text : ""))

@@ -1,8 +1,9 @@
 import {
   BedrockRuntimeClient,
+  InvokeModelCommand,
   InvokeModelWithResponseStreamCommand
 } from "@aws-sdk/client-bedrock-runtime"
-import { ModelApi, PromptFinalResponse, PromptResult } from "@mfb/llm-types"
+import { ChatPrompt, ModelApi } from "../types/index.js"
 type Meta33Model = "us.meta.llama3-3-70b-instruct-v1:0"
 type Meta32Model =
   | "us.meta.llama3-2-1b-instruct-v1:0"
@@ -111,17 +112,64 @@ export function buildLlamaLlm(
   })
 
   return {
-    textPrompt: async (prompt: string, instructions?: string) => {
-      const finalResponse: PromptFinalResponse = {
+    getText: async (prompt: string | ChatPrompt, instructions?: string) => {
+      const invoke = new InvokeModelCommand({
+        modelId: model,
+        contentType: "application/json",
+        body: JSON.stringify(
+          typeof prompt === "string"
+            ? convertToLlamaPrompt(
+                [{ role: "user", text: prompt }],
+                instructions
+              )
+            : convertToLlamaPrompt(
+                prompt.map(
+                  p => ({ role: p.role, text: p.prompt }),
+                  instructions
+                )
+              )
+        )
+      })
+      const result = await client.send(invoke)
+      if (!result.body) {
+        throw new Error("Unexpectedly did not receive response stream")
+      }
+      // Decode and return the response(s)
+      const decodedResponseBody = new TextDecoder().decode(result.body)
+      const responseBody = JSON.parse(decodedResponseBody)
+      const rawResponse = responseBody.content
+
+      const response = {
+        uuid: result.$metadata.requestId ?? "",
+        text: rawResponse.generation,
+        inputTokens: rawResponse.prompt_token_count,
+        outputTokens: rawResponse.generation_token_count
+      }
+      return response
+    },
+    getStream: async (prompt: string | ChatPrompt, instructions?: string) => {
+      const finalResponse = {
         uuid: "",
-        text: ""
+        text: "",
+        inputTokens: undefined as number | undefined,
+        outputTokens: undefined as number | undefined
       }
 
       const invoke = new InvokeModelWithResponseStreamCommand({
         modelId: model,
         contentType: "application/json",
         body: JSON.stringify(
-          convertToLlamaPrompt([{ role: "user", text: prompt }], instructions)
+          typeof prompt === "string"
+            ? convertToLlamaPrompt(
+                [{ role: "user", text: prompt }],
+                instructions
+              )
+            : convertToLlamaPrompt(
+                prompt.map(
+                  p => ({ role: p.role, text: p.prompt }),
+                  instructions
+                )
+              )
         )
       })
       const stream = await client.send(invoke)
@@ -129,7 +177,7 @@ export function buildLlamaLlm(
         throw new Error("Unexpectedly did not receive response stream")
       }
 
-      const result: PromptResult = {
+      const result = {
         stream: mapIterable(stream.body, s => {
           const chunk: TextCompletionResponse = JSON.parse(
             new TextDecoder().decode(s.chunk?.bytes)
@@ -144,7 +192,7 @@ export function buildLlamaLlm(
           return chunk.generation
         }),
         getFinalResponse: async () => {
-          const response: PromptFinalResponse = {
+          const response = {
             ...finalResponse,
             uuid: stream.$metadata.requestId ?? ""
           }

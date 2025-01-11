@@ -2,15 +2,10 @@ import {
   EnhancedGenerateContentResponse,
   GoogleGenerativeAI
 } from "@google/generative-ai"
-import {
-  Model,
-  ModelApi,
-  PromptFinalResponse,
-  PromptResult
-} from "@mfb/llm-types"
 import { nanoid } from "nanoid"
+import { ChatPrompt, ModelApi } from "../types/index.js"
 
-type GeminiModel = Extract<Model, "gemini-1.5-pro" | "gemini-1.5-flash">
+type GeminiModel = "gemini-1.5-pro" | "gemini-1.5-flash"
 
 export function buildGeminiLlm(
   model: GeminiModel,
@@ -22,16 +17,43 @@ export function buildGeminiLlm(
     model: model
   })
 
-  return {
-    textPrompt: async (prompt: string, instructions?: string) => {
-      const internalUuid = nanoid()
-      const geminiResult = await generativeModel.generateContentStream({
-        contents: [
+  const toGeminiPrompt = (
+    prompt: string | ChatPrompt
+  ): { role: "user" | "model"; parts: { text: string }[] }[] =>
+    typeof prompt === "string"
+      ? [
           {
             role: "user",
             parts: [{ text: prompt }]
           }
-        ],
+        ]
+      : prompt.map(p => ({
+          role: p.role === "user" ? "user" : "model",
+          parts: [{ text: p.prompt }]
+        }))
+
+  return {
+    getText: async (prompt: string | ChatPrompt, instructions?: string) => {
+      const internalUuid = nanoid()
+      const result = (
+        await generativeModel.generateContent({
+          contents: toGeminiPrompt(prompt),
+          systemInstruction: instructions
+        })
+      ).response
+
+      const response = {
+        uuid: internalUuid,
+        text: result.text(),
+        inputTokens: result.usageMetadata?.promptTokenCount,
+        outputTokens: result.usageMetadata?.candidatesTokenCount
+      }
+      return response
+    },
+    getStream: async (prompt: string | ChatPrompt, instructions?: string) => {
+      const internalUuid = nanoid()
+      const geminiResult = await generativeModel.generateContentStream({
+        contents: toGeminiPrompt(prompt),
         systemInstruction: instructions
       })
 
@@ -42,7 +64,7 @@ export function buildGeminiLlm(
       // exhaust the async iterable -- (i think)
       let accumulatedText = ""
 
-      const result: PromptResult = {
+      const result = {
         stream: mapIterable(
           geminiResult.stream,
           (s: EnhancedGenerateContentResponse): string => {
@@ -56,7 +78,7 @@ export function buildGeminiLlm(
             accumulatedText += chunk.text()
           }
           const geminiResponse = await geminiResult.response
-          const response: PromptFinalResponse = {
+          const response = {
             uuid: internalUuid,
             text: accumulatedText,
             inputTokens: geminiResponse.usageMetadata?.promptTokenCount,
