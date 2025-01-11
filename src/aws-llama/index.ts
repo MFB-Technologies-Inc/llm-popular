@@ -136,8 +136,12 @@ export function buildLlamaLlm(
       }
       // Decode and return the response(s)
       const decodedResponseBody = new TextDecoder().decode(result.body)
-      const responseBody = JSON.parse(decodedResponseBody)
-      const rawResponse = responseBody.content
+      const rawResponse = JSON.parse(decodedResponseBody) as {
+        generation: string
+        prompt_token_count: number
+        generation_token_count: number
+        stop_reason: "stop" | "length"
+      }
 
       const response = {
         uuid: result.$metadata.requestId ?? "",
