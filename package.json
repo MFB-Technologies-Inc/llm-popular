@@ -1,0 +1,32 @@
+{
+  "name": "@mfbtech/llm-popular",
+  "version": "0.0.1",
+  "description": "Create uniform bindings for popular llm apis",
+  "types": "lib/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "rimraf ./lib && tsc --project tsconfig.json",
+    "lint": "eslint ./src/",
+    "fix-formatting": "prettier --write --config prettier.config.cjs ./src/",
+    "check-formatting": "prettier --check --config prettier.config.cjs ./src/"
+  },
+  "author": "MFB Technologies, Inc.",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "20.14.15",
+    "rimraf": "6.0.1",
+    "typescript": "5.5.4",
+    "eslint": "8.48.0",
+    "@rushstack/eslint-config": "3.3.4",
+    "@typescript-eslint/parser": "6.4.1",
+    "@typescript-eslint/eslint-plugin": "6.4.1",
+    "prettier": "2.8.8"
+  },
+  "dependencies": {
+    "openai": "~4.76.0",
+    "@anthropic-ai/sdk": "~0.32.1",
+    "@google/generative-ai": "~0.21.0",
+    "@aws-sdk/client-bedrock-runtime": "~3.716.0",
+    "nanoid": "3.3.8"
+  }
+}
