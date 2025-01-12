@@ -1,5 +1,5 @@
+import { ModelApi, ChatPrompt } from "@mfbtech/llm-api-types"
 import OpenAI from "openai"
-import { ChatPrompt, ModelApi } from "../types/index.js"
 import { ChatCompletionChunk } from "openai/resources/index.mjs"
 
 type OpenAiModel = "gpt-4o" | "gpt-4o-mini"

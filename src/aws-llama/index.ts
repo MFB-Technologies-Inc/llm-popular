@@ -3,7 +3,7 @@ import {
   InvokeModelCommand,
   InvokeModelWithResponseStreamCommand
 } from "@aws-sdk/client-bedrock-runtime"
-import { ChatPrompt, ModelApi } from "../types/index.js"
+import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
 type Meta33Model = "us.meta.llama3-3-70b-instruct-v1:0"
 type Meta32Model =
   | "us.meta.llama3-2-1b-instruct-v1:0"

@@ -5,7 +5,7 @@
   "types": "lib/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "rimraf ./lib && tsc --project tsconfig.json",
+    "build": "rimraf ./lib && tsc --project tsconfig.prod.json",
     "lint": "eslint ./src/",
     "fix-formatting": "prettier --write --config prettier.config.cjs ./src/",
     "check-formatting": "prettier --check --config prettier.config.cjs ./src/"
@@ -22,6 +22,7 @@
     "prettier": "2.8.8",
     "rimraf": "6.0.1",
     "typescript": "5.5.4",
+    "@mfbtech/llm-api-types": "^0.0.1",
     "vite-node": "^2.1.8"
   },
   "dependencies": {

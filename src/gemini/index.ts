@@ -2,8 +2,8 @@ import {
   EnhancedGenerateContentResponse,
   GoogleGenerativeAI
 } from "@google/generative-ai"
+import { ModelApi, ChatPrompt } from "@mfbtech/llm-api-types"
 import { nanoid } from "nanoid"
-import { ChatPrompt, ModelApi } from "../types/index.js"
 
 type GeminiModel = "gemini-1.5-pro" | "gemini-1.5-flash"
 

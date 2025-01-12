@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { RawMessageStreamEvent } from "@anthropic-ai/sdk/resources/messages.mjs"
-import { ChatPrompt, ModelApi } from "../types/index.js"
+import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
 
 type AnthropicModel = "claude-3-5-sonnet-20241022" | "claude-3-5-haiku-20241022"
 
