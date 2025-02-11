@@ -23,7 +23,7 @@
     "prettier": "~2.8.8",
     "rimraf": "~6.0.1",
     "typescript": "~5.5.4",
-    "@mfbtech/llm-api-types": "^0.0.1",
+    "@mfbtech/llm-api-types": "^1.0.0",
     "vite-node": "^2.1.9"
   },
   "dependencies": {
