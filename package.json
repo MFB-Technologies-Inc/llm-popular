@@ -1,6 +1,6 @@
 {
   "name": "@mfbtech/llm-popular",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Create uniform bindings for popular llm apis",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
