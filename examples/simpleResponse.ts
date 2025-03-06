@@ -1,4 +1,4 @@
-import { buildGeminiLlm, buildLlamaLlm } from "../src/index.js"
+import { buildAnthrophicLlm } from "../src/index.js"
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -9,7 +9,10 @@ dotenv.config()
 //   region: "us-east-1"
 // })
 
-const model = buildGeminiLlm("gemini-2.0-flash", varOrThrow("GEMINI_KEY"))
+const model = buildAnthrophicLlm(
+  "claude-3-7-sonnet-20250219",
+  varOrThrow("ANTHROPIC_KEY")
+)
 
 const instructions = "Your response must be in the form of a rhyming couplet"
 
