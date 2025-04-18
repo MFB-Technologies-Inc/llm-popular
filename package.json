@@ -1,6 +1,6 @@
 {
   "name": "@mfbtech/llm-popular",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Create uniform bindings for popular llm apis",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -20,7 +20,7 @@
     "@typescript-eslint/eslint-plugin": "8.29.1",
     "@typescript-eslint/parser": "8.29.1",
     "dotenv": "16.5.0",
-    "eslint": "9.24.0",
+    "eslint": "8.57.0",
     "prettier": "3.5.3",
     "rimraf": "6.0.1",
     "typescript": "5.8.3",
