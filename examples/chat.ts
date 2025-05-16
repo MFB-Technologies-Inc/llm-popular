@@ -1,13 +1,9 @@
-import { buildGeminiLlm, buildLlamaLlm } from "../src/index.js"
+import { buildOpenAiLlm } from "../src/index.js"
 import dotenv from "dotenv"
 
 dotenv.config()
 
-const model = buildLlamaLlm("us.meta.llama3-3-70b-instruct-v1:0", {
-  awsAccessKey: varOrThrow("AWS_ACCESS_KEY"),
-  awsSecret: varOrThrow("AWS_SECRET"),
-  region: "us-east-1"
-})
+const model = buildOpenAiLlm("gpt-4.1-mini", varOrThrow("OPENAI_KEY"))
 
 // const model = buildGeminiLlm("gemini-2.0-flash", varOrThrow("GEMINI_KEY"))
 
