@@ -1,4 +1,4 @@
-import { buildGeminiLlm } from "../src/index.js"
+import { buildGeminiLlm, buildOpenAiLlm } from "../src/index.js"
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -14,10 +14,13 @@ dotenv.config()
 //   varOrThrow("ANTHROPIC_KEY")
 // )
 
-const model = buildGeminiLlm(
-  "gemini-2.5-pro-preview-03-25",
-  varOrThrow("GEMINI_KEY")
-)
+// const model = buildGeminiLlm(
+//   "gemini-2.5-flash-preview-04-17",
+//   varOrThrow("GEMINI_KEY")
+// )
+//
+
+const model = buildOpenAiLlm("o4-mini", varOrThrow("OPENAI_KEY"))
 
 const instructions = "Your response must be in the form of a rhyming couplet"
 

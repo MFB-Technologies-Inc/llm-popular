@@ -2,14 +2,21 @@ import { ModelApi, ChatPrompt } from "@mfbtech/llm-api-types"
 import OpenAI from "openai"
 import { ChatCompletionChunk } from "openai/resources/index.mjs"
 
-type OpenAiModel = "gpt-4o" | "gpt-4o-mini"
+type OpenAiModel =
+  | "gpt-4o"
+  | "gpt-4o-mini"
+  | "gpt-4.1"
+  | "gpt-4.1-mini"
+  | "o4-mini"
 
 export function buildOpenAiLlm(
   model: OpenAiModel,
-  openAiKey: string
+  openAiKey: string,
+  dangerouslyAllowBrowser?: boolean
 ): ModelApi {
   const client = new OpenAI({
-    apiKey: openAiKey
+    apiKey: openAiKey,
+    dangerouslyAllowBrowser
   })
 
   const defaultInstructions =

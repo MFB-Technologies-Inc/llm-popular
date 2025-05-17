@@ -9,10 +9,12 @@ type AnthropicModel =
 
 export function buildAnthrophicLlm(
   model: AnthropicModel,
-  anthrophicApiKey: string
+  anthrophicApiKey: string,
+  dangerouslyAllowBrowser?: boolean
 ): ModelApi {
   const client = new Anthropic({
-    apiKey: anthrophicApiKey
+    apiKey: anthrophicApiKey,
+    dangerouslyAllowBrowser
   })
 
   const toAnthropicPrompt = (
