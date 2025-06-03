@@ -1,11 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk"
-import { RawMessageStreamEvent } from "@anthropic-ai/sdk/resources/messages.mjs"
-import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
+import type {
+  RawMessageStreamEvent,
+  Model
+} from "@anthropic-ai/sdk/resources/messages.mjs"
+import type { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
 
-type AnthropicModel =
-  | "claude-3-5-sonnet-20241022"
-  | "claude-3-5-haiku-20241022"
-  | "claude-3-7-sonnet-20250219"
+type AnthropicModel = Extract<
+  Model,
+  | "claude-4-sonnet-20250514"
+  | "claude-4-opus-20250514"
+  | "claude-3-7-sonnet-latest"
+  | "claude-3-5-haiku-latest"
+>
 
 export function buildAnthrophicLlm(
   model: AnthropicModel,

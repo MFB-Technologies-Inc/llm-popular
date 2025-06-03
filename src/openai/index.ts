@@ -1,13 +1,17 @@
-import { ModelApi, ChatPrompt } from "@mfbtech/llm-api-types"
+import type { ModelApi, ChatPrompt } from "@mfbtech/llm-api-types"
 import OpenAI from "openai"
-import { ChatCompletionChunk } from "openai/resources/index.mjs"
+import type { ChatCompletionChunk, ChatModel } from "openai/resources/index.mjs"
 
-type OpenAiModel =
+type OpenAiModel = Extract<
+  ChatModel,
   | "gpt-4o"
   | "gpt-4o-mini"
   | "gpt-4.1"
   | "gpt-4.1-mini"
+  | "gpt-4.1-nano"
   | "o4-mini"
+  | "o3"
+>
 
 export function buildOpenAiLlm(
   model: OpenAiModel,
@@ -39,7 +43,7 @@ export function buildOpenAiLlm(
 
   return {
     getText: async (prompt: string | ChatPrompt, instructions?: string) => {
-      const result = await client.beta.chat.completions.parse({
+      const result = await client.chat.completions.parse({
         model: model,
         messages: [
           {
@@ -61,7 +65,7 @@ export function buildOpenAiLlm(
       return response
     },
     getStream: async (prompt: string | ChatPrompt, instructions?: string) => {
-      const stream = client.beta.chat.completions.stream({
+      const stream = client.chat.completions.stream({
         model: model,
         messages: [
           {
