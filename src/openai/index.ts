@@ -39,7 +39,7 @@ export function buildOpenAiLlm(
 
   return {
     getText: async (prompt: string | ChatPrompt, instructions?: string) => {
-      const result = await client.beta.chat.completions.parse({
+      const result = await client.chat.completions.parse({
         model: model,
         messages: [
           {
@@ -61,7 +61,7 @@ export function buildOpenAiLlm(
       return response
     },
     getStream: async (prompt: string | ChatPrompt, instructions?: string) => {
-      const stream = client.beta.chat.completions.stream({
+      const stream = client.chat.completions.stream({
         model: model,
         messages: [
           {
