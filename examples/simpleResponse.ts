@@ -1,26 +1,52 @@
-import { buildGeminiLlm, buildOpenAiLlm } from "../src/index.js"
+import { buildGeminiLlm, buildOpenAiLlm, buildAnthrophicLlm, buildLlamaLlm } from "../src/index.js"
 import dotenv from "dotenv"
+import * as readline from "readline/promises"
 
 dotenv.config()
 
-// const model = buildLlamaLlm("us.meta.llama3-3-70b-instruct-v1:0", {
-//   awsAccessKey: varOrThrow("AWS_ACCESS_KEY"),
-//   awsSecret: varOrThrow("AWS_SECRET"),
-//   region: "us-east-1"
-// })
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+})
 
-// const model = buildAnthrophicLlm(
-//   "claude-3-7-sonnet-20250219",
-//   varOrThrow("ANTHROPIC_KEY")
-// )
+console.log("Select a provider:")
+console.log("1. AWS Llama")
+console.log("2. Anthropic")
+console.log("3. Gemini")
+console.log("4. OpenAI")
 
-// const model = buildGeminiLlm(
-//   "gemini-2.5-flash-preview-04-17",
-//   varOrThrow("GEMINI_KEY")
-// )
-//
+const choice = await rl.question("\nEnter your choice (1-4): ")
+rl.close()
 
-const model = buildOpenAiLlm("o4-mini", varOrThrow("OPENAI_KEY"))
+let model
+
+switch (choice) {
+  case "1":
+    model = buildLlamaLlm("us.meta.llama3-3-70b-instruct-v1:0", {
+      awsAccessKey: varOrThrow("AWS_ACCESS_KEY"),
+      awsSecret: varOrThrow("AWS_SECRET"),
+      region: "us-east-1"
+    })
+    break
+  case "2":
+    model = buildAnthrophicLlm(
+      "claude-3-7-sonnet-20250219",
+      varOrThrow("ANTHROPIC_KEY")
+    )
+    break
+  case "3":
+    model = buildGeminiLlm(
+      "gemini-2.5-pro-preview-05-06",
+      varOrThrow("GEMINI_KEY")
+    )
+    break
+  case "4":
+    model = buildOpenAiLlm("o4-mini", varOrThrow("OPENAI_KEY"))
+    break
+  default:
+    console.error("Invalid choice. Please run again and select 1-4.")
+    process.exit(1)
+}
 
 const instructions = "Your response must be in the form of a rhyming couplet"
 
