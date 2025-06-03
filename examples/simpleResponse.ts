@@ -1,4 +1,9 @@
-import { buildGeminiLlm, buildOpenAiLlm, buildAnthrophicLlm, buildLlamaLlm } from "../src/index.js"
+import {
+  buildGeminiLlm,
+  buildOpenAiLlm,
+  buildAnthrophicLlm,
+  buildLlamaLlm
+} from "../src/index.js"
 import dotenv from "dotenv"
 import * as readline from "readline/promises"
 
@@ -30,7 +35,7 @@ switch (choice) {
     break
   case "2":
     model = buildAnthrophicLlm(
-      "claude-3-7-sonnet-20250219",
+      "claude-4-opus-20250514",
       varOrThrow("ANTHROPIC_KEY")
     )
     break
@@ -41,7 +46,7 @@ switch (choice) {
     )
     break
   case "4":
-    model = buildOpenAiLlm("o4-mini", varOrThrow("OPENAI_KEY"))
+    model = buildOpenAiLlm("o3", varOrThrow("OPENAI_KEY"))
     break
   default:
     console.error("Invalid choice. Please run again and select 1-4.")
