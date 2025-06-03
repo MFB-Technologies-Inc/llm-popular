@@ -4,7 +4,10 @@ import {
   InvokeModelWithResponseStreamCommand
 } from "@aws-sdk/client-bedrock-runtime"
 import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
-type Meta33Model = "us.meta.llama3-3-70b-instruct-v1:0"
+type MetaNewModel =
+  | "us.meta.llama3-3-70b-instruct-v1:0"
+  | "us.meta.llama4-maverick-17b-instruct-v1:0"
+  | "us.meta.llama4-scout-17b-instruct-v1:0"
 type Meta32Model =
   | "us.meta.llama3-2-1b-instruct-v1:0"
   | "us.meta.llama3-2-3b-instruct-v1:0"
@@ -96,7 +99,7 @@ function convertToLlamaPrompt(
 }
 
 export function buildLlamaLlm(
-  model: Meta33Model | Meta32Model,
+  model: MetaNewModel | Meta32Model,
   awsCredentials: {
     awsAccessKey: string
     awsSecret: string

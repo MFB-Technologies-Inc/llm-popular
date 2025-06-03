@@ -27,7 +27,7 @@ let model
 
 switch (choice) {
   case "1":
-    model = buildLlamaLlm("us.meta.llama3-3-70b-instruct-v1:0", {
+    model = buildLlamaLlm("us.meta.llama4-scout-17b-instruct-v1:0", {
       awsAccessKey: varOrThrow("AWS_ACCESS_KEY"),
       awsSecret: varOrThrow("AWS_SECRET"),
       region: "us-east-1"
@@ -41,7 +41,7 @@ switch (choice) {
     break
   case "3":
     model = buildGeminiLlm(
-      "gemini-2.5-pro-preview-05-06",
+      "gemini-2.5-flash-preview-05-20",
       varOrThrow("GEMINI_KEY")
     )
     break
@@ -55,7 +55,7 @@ switch (choice) {
 
 const instructions = "Your response must be in the form of a rhyming couplet"
 
-const prompt = "Confirm you are up and running"
+const prompt = "Identify yourself and confirm you are up and running"
 
 const response = await model.getText(prompt, instructions)
 
