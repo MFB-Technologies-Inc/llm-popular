@@ -1,4 +1,4 @@
-export type Llama33 = {
+export type LlamaPrompt = {
   prompt: string
   /** @property {number} [max_gen_len=512] - The maximum number of tokens for the generated response.
    * The response is truncated once it exceeds this value.
@@ -23,7 +23,7 @@ export function convertToLlamaPrompt(
   input: { role: "user" | "assistant"; text: string }[],
   instructions?: string,
   version: "3" | "4" = "3"
-): Llama33 {
+): LlamaPrompt {
   let llamaPrompt = `<|begin_of_text|>`
 
   if (version === "4") {
