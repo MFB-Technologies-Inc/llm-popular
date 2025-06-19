@@ -5,13 +5,22 @@ import {
 } from "@aws-sdk/client-bedrock-runtime"
 import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
 import { convertToLlamaPrompt } from "./convertToLlamaPrompt.js"
-type Meta4Model =
-  | "us.meta.llama4-maverick-17b-instruct-v1:0"
-  | "us.meta.llama4-scout-17b-instruct-v1:0"
-type Meta3Model =
-  | "us.meta.llama3-3-70b-instruct-v1:0"
-  | "us.meta.llama3-2-1b-instruct-v1:0"
-  | "us.meta.llama3-2-3b-instruct-v1:0"
+
+// Model constants
+const LLAMA_4_MODELS = [
+  "us.meta.llama4-maverick-17b-instruct-v1:0",
+  "us.meta.llama4-scout-17b-instruct-v1:0"
+] as const
+
+const LLAMA_3_MODELS = [
+  "us.meta.llama3-3-70b-instruct-v1:0",
+  "us.meta.llama3-2-1b-instruct-v1:0",
+  "us.meta.llama3-2-3b-instruct-v1:0"
+] as const
+
+// Infer types from constants
+type Meta4Model = (typeof LLAMA_4_MODELS)[number]
+type Meta3Model = (typeof LLAMA_3_MODELS)[number]
 
 /**
  * The response returned by Llama 2 Chat, Llama 2, and Llama 3 Instruct models
@@ -51,6 +60,17 @@ export type TextCompletionResponse = {
   }
 }
 
+// Helper function to determine Llama version from model name
+function getLlamaVersion(model: Meta4Model | Meta3Model): "3" | "4" {
+  if ((LLAMA_4_MODELS as readonly string[]).includes(model)) {
+    return "4"
+  } else if ((LLAMA_3_MODELS as readonly string[]).includes(model)) {
+    return "3"
+  }
+  // This should never happen due to TypeScript, but throw error for safety
+  throw new Error(`Unknown model: ${model}`)
+}
+
 export function buildLlamaLlm(
   model: Meta4Model | Meta3Model,
   awsCredentials: {
@@ -67,6 +87,9 @@ export function buildLlamaLlm(
     }
   })
 
+  // Determine the Llama version based on the model
+  const llamaVersion = getLlamaVersion(model)
+
   return {
     getText: async (prompt: string | ChatPrompt, instructions?: string) => {
       const invoke = new InvokeModelCommand({
@@ -76,11 +99,13 @@ export function buildLlamaLlm(
           typeof prompt === "string"
             ? convertToLlamaPrompt(
                 [{ role: "user", text: prompt }],
-                instructions
+                instructions,
+                llamaVersion
               )
             : convertToLlamaPrompt(
                 prompt.map(p => ({ role: p.role, text: p.prompt })),
-                instructions
+                instructions,
+                llamaVersion
               )
         )
       })
@@ -120,11 +145,13 @@ export function buildLlamaLlm(
           typeof prompt === "string"
             ? convertToLlamaPrompt(
                 [{ role: "user", text: prompt }],
-                instructions
+                instructions,
+                llamaVersion
               )
             : convertToLlamaPrompt(
                 prompt.map(p => ({ role: p.role, text: p.prompt })),
-                instructions
+                instructions,
+                llamaVersion
               )
         )
       })
