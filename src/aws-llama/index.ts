@@ -5,11 +5,11 @@ import {
 } from "@aws-sdk/client-bedrock-runtime"
 import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
 import { convertToLlamaPrompt } from "./convertToLlamaPrompt.js"
-type MetaNewModel =
-  | "us.meta.llama3-3-70b-instruct-v1:0"
+type Meta4Model =
   | "us.meta.llama4-maverick-17b-instruct-v1:0"
   | "us.meta.llama4-scout-17b-instruct-v1:0"
-type Meta32Model =
+type Meta3Model =
+  | "us.meta.llama3-3-70b-instruct-v1:0"
   | "us.meta.llama3-2-1b-instruct-v1:0"
   | "us.meta.llama3-2-3b-instruct-v1:0"
 
@@ -52,7 +52,7 @@ export type TextCompletionResponse = {
 }
 
 export function buildLlamaLlm(
-  model: MetaNewModel | Meta32Model,
+  model: Meta4Model | Meta3Model,
   awsCredentials: {
     awsAccessKey: string
     awsSecret: string

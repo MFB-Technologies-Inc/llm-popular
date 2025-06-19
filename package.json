@@ -9,7 +9,8 @@
     "build": "rimraf ./lib && tsc --project tsconfig.prod.json",
     "lint": "eslint ./src/",
     "fix-formatting": "prettier --write --config prettier.config.cjs ./src/",
-    "check-formatting": "prettier --check --config prettier.config.cjs ./src/"
+    "check-formatting": "prettier --check --config prettier.config.cjs ./src/",
+    "test": "vitest"
   },
   "author": "MFB Technologies, Inc.",
   "license": "MIT",
@@ -24,7 +25,8 @@
     "prettier": "3.5.3",
     "rimraf": "6.0.1",
     "typescript": "5.8.3",
-    "vite-node": "^3.2.4"
+    "vite-node": "^3.2.4",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.54.0",
