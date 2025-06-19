@@ -4,34 +4,23 @@ import {
   InvokeModelWithResponseStreamCommand
 } from "@aws-sdk/client-bedrock-runtime"
 import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
-type MetaNewModel =
-  | "us.meta.llama3-3-70b-instruct-v1:0"
-  | "us.meta.llama4-maverick-17b-instruct-v1:0"
-  | "us.meta.llama4-scout-17b-instruct-v1:0"
-type Meta32Model =
-  | "us.meta.llama3-2-1b-instruct-v1:0"
-  | "us.meta.llama3-2-3b-instruct-v1:0"
+import { convertToLlamaPrompt } from "./convertToLlamaPrompt.js"
 
-type Llama33 = {
-  prompt: string
-  /** @property {number} [max_gen_len=512] - The maximum number of tokens for the generated response.
-   * The response is truncated once it exceeds this value.
-   * Defaults to `512`. Minimum: `1`, Maximum: `2048`.
-   */
-  max_gen_len?: number
-  /**
-   * Controls the randomness of the response.
-   * A lower value decreases randomness.
-   * Defaults to `0.5`. Minimum: `0`, Maximum: `1`.
-   */
-  temperature?: number
-  /**
-   * Filters out less probable options.
-   * Use `0` or `1.0` to disable.
-   * Defaults to `0.9`. Minimum: `0`, Maximum: `1`.
-   */
-  top_p?: number
-}
+// Model constants
+const LLAMA_4_MODELS = [
+  "us.meta.llama4-maverick-17b-instruct-v1:0",
+  "us.meta.llama4-scout-17b-instruct-v1:0"
+] as const
+
+const LLAMA_3_MODELS = [
+  "us.meta.llama3-3-70b-instruct-v1:0",
+  "us.meta.llama3-2-1b-instruct-v1:0",
+  "us.meta.llama3-2-3b-instruct-v1:0"
+] as const
+
+// Infer types from constants
+type Meta4Model = (typeof LLAMA_4_MODELS)[number]
+type Meta3Model = (typeof LLAMA_3_MODELS)[number]
 
 /**
  * The response returned by Llama 2 Chat, Llama 2, and Llama 3 Instruct models
@@ -71,35 +60,19 @@ export type TextCompletionResponse = {
   }
 }
 
-function convertToLlamaPrompt(
-  input: { role: "user" | "assistant"; text: string }[],
-  instructions?: string
-): Llama33 {
-  let llamaPrompt = `<|begin_of_text|>`
-
-  if (instructions) {
-    llamaPrompt += `<|start_header_id|>system<|end_header_id|>${instructions}<|eot_id|>`
+// Helper function to determine Llama version from model name
+function getLlamaVersion(model: Meta4Model | Meta3Model): "3" | "4" {
+  if ((LLAMA_4_MODELS as readonly string[]).includes(model)) {
+    return "4"
+  } else if ((LLAMA_3_MODELS as readonly string[]).includes(model)) {
+    return "3"
   }
-
-  for (const message of input) {
-    llamaPrompt += `<|start_header_id|>${message.role}<|end_header_id|>${message.text}<|eot_id|>`
-  }
-
-  // End the prompt -- ending the prompt this way ensure the next thing it generates in it's
-  // completion is the start of the answer. Otherwise it will generate headers or newlines.
-  llamaPrompt += "<|start_header_id|>assistant<|end_header_id|>\n"
-
-  // Return the final prompt string
-  return {
-    prompt: llamaPrompt,
-    max_gen_len: 2048,
-    temperature: 0.5,
-    top_p: 0.9
-  }
+  // This should never happen due to TypeScript, but throw error for safety
+  throw new Error(`Unknown model: ${model}`)
 }
 
 export function buildLlamaLlm(
-  model: MetaNewModel | Meta32Model,
+  model: Meta4Model | Meta3Model,
   awsCredentials: {
     awsAccessKey: string
     awsSecret: string
@@ -114,6 +87,9 @@ export function buildLlamaLlm(
     }
   })
 
+  // Determine the Llama version based on the model
+  const llamaVersion = getLlamaVersion(model)
+
   return {
     getText: async (prompt: string | ChatPrompt, instructions?: string) => {
       const invoke = new InvokeModelCommand({
@@ -123,13 +99,13 @@ export function buildLlamaLlm(
           typeof prompt === "string"
             ? convertToLlamaPrompt(
                 [{ role: "user", text: prompt }],
-                instructions
+                instructions,
+                llamaVersion
               )
             : convertToLlamaPrompt(
-                prompt.map(
-                  p => ({ role: p.role, text: p.prompt }),
-                  instructions
-                )
+                prompt.map(p => ({ role: p.role, text: p.prompt })),
+                instructions,
+                llamaVersion
               )
         )
       })
@@ -169,13 +145,13 @@ export function buildLlamaLlm(
           typeof prompt === "string"
             ? convertToLlamaPrompt(
                 [{ role: "user", text: prompt }],
-                instructions
+                instructions,
+                llamaVersion
               )
             : convertToLlamaPrompt(
-                prompt.map(
-                  p => ({ role: p.role, text: p.prompt }),
-                  instructions
-                )
+                prompt.map(p => ({ role: p.role, text: p.prompt })),
+                instructions,
+                llamaVersion
               )
         )
       })
