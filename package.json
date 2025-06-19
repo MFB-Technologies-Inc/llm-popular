@@ -10,7 +10,8 @@
     "lint": "eslint ./src/",
     "fix-formatting": "prettier --write --config prettier.config.cjs ./src/",
     "check-formatting": "prettier --check --config prettier.config.cjs ./src/",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "author": "MFB Technologies, Inc.",
   "license": "MIT",
