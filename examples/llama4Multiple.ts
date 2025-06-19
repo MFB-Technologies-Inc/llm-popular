@@ -23,8 +23,15 @@ async function main() {
   })
 
   // Define the prompt and instructions
-  const instructions = "You are a creative AI assistant. Keep your responses brief and engaging."
-  const prompt = "Generate a unique, creative name for a fictional planet and describe one interesting feature about it in a single sentence."
+  const instructions =
+    "You are a creative AI assistant. Please make sure your responses are detailed."
+  const prompt = `Generate a unique, creative name for a fictional planet, describe one interesting feature about it in a single sentence, and give a detailed description of its history. Return your response in a JSON formatted as follows:
+  {
+    "name": "Description goes here",
+    "feature": "Description goes here",
+    "history": "History goes here"
+  }
+  ONLY return the json.`
 
   console.log("Instructions:", instructions)
   console.log("Prompt:", prompt)
@@ -32,20 +39,22 @@ async function main() {
 
   // Run the prompt 10 times
   const results: string[] = []
-  
+
   for (let i = 1; i <= 10; i++) {
     try {
       console.log(`🌍 Iteration ${i}:`)
       const startTime = Date.now()
-      
+
       const response = await model.getText(prompt, instructions)
       const endTime = Date.now()
-      
+
       console.log(`Response: ${response.text}`)
       console.log(`Time: ${endTime - startTime}ms`)
-      console.log(`Tokens - Input: ${response.inputTokens}, Output: ${response.outputTokens}`)
+      console.log(
+        `Tokens - Input: ${response.inputTokens}, Output: ${response.outputTokens}`
+      )
       console.log("---")
-      
+
       results.push(response.text)
     } catch (error) {
       console.error(`Error on iteration ${i}:`, error)
