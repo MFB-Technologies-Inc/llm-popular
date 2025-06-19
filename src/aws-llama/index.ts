@@ -4,6 +4,7 @@ import {
   InvokeModelWithResponseStreamCommand
 } from "@aws-sdk/client-bedrock-runtime"
 import { ChatPrompt, ModelApi } from "@mfbtech/llm-api-types"
+import { convertToLlamaPrompt } from "./convertToLlamaPrompt.js"
 type MetaNewModel =
   | "us.meta.llama3-3-70b-instruct-v1:0"
   | "us.meta.llama4-maverick-17b-instruct-v1:0"
@@ -11,27 +12,6 @@ type MetaNewModel =
 type Meta32Model =
   | "us.meta.llama3-2-1b-instruct-v1:0"
   | "us.meta.llama3-2-3b-instruct-v1:0"
-
-type Llama33 = {
-  prompt: string
-  /** @property {number} [max_gen_len=512] - The maximum number of tokens for the generated response.
-   * The response is truncated once it exceeds this value.
-   * Defaults to `512`. Minimum: `1`, Maximum: `2048`.
-   */
-  max_gen_len?: number
-  /**
-   * Controls the randomness of the response.
-   * A lower value decreases randomness.
-   * Defaults to `0.5`. Minimum: `0`, Maximum: `1`.
-   */
-  temperature?: number
-  /**
-   * Filters out less probable options.
-   * Use `0` or `1.0` to disable.
-   * Defaults to `0.9`. Minimum: `0`, Maximum: `1`.
-   */
-  top_p?: number
-}
 
 /**
  * The response returned by Llama 2 Chat, Llama 2, and Llama 3 Instruct models
@@ -71,33 +51,6 @@ export type TextCompletionResponse = {
   }
 }
 
-function convertToLlamaPrompt(
-  input: { role: "user" | "assistant"; text: string }[],
-  instructions?: string
-): Llama33 {
-  let llamaPrompt = `<|begin_of_text|>`
-
-  if (instructions) {
-    llamaPrompt += `<|start_header_id|>system<|end_header_id|>${instructions}<|eot_id|>`
-  }
-
-  for (const message of input) {
-    llamaPrompt += `<|start_header_id|>${message.role}<|end_header_id|>${message.text}<|eot_id|>`
-  }
-
-  // End the prompt -- ending the prompt this way ensure the next thing it generates in it's
-  // completion is the start of the answer. Otherwise it will generate headers or newlines.
-  llamaPrompt += "<|start_header_id|>assistant<|end_header_id|>\n"
-
-  // Return the final prompt string
-  return {
-    prompt: llamaPrompt,
-    max_gen_len: 2048,
-    temperature: 0.5,
-    top_p: 0.9
-  }
-}
-
 export function buildLlamaLlm(
   model: MetaNewModel | Meta32Model,
   awsCredentials: {
@@ -126,10 +79,8 @@ export function buildLlamaLlm(
                 instructions
               )
             : convertToLlamaPrompt(
-                prompt.map(
-                  p => ({ role: p.role, text: p.prompt }),
-                  instructions
-                )
+                prompt.map(p => ({ role: p.role, text: p.prompt })),
+                instructions
               )
         )
       })
@@ -172,10 +123,8 @@ export function buildLlamaLlm(
                 instructions
               )
             : convertToLlamaPrompt(
-                prompt.map(
-                  p => ({ role: p.role, text: p.prompt }),
-                  instructions
-                )
+                prompt.map(p => ({ role: p.role, text: p.prompt })),
+                instructions
               )
         )
       })
